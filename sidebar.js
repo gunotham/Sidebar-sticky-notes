@@ -219,4 +219,39 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- Initial Load ---
     loadTheme();
     loadNotes();
+
+    // --- Resizer Logic ---
+    const resizer = document.getElementById('resizer');
+
+    browser.storage.local.get('notesListWidth').then(data => {
+        if (data.notesListWidth) {
+            notesList.style.width = data.notesListWidth;
+        }
+    });
+
+    resizer.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+
+        const startX = e.clientX;
+        const startWidth = notesList.offsetWidth;
+
+        const doDrag = (e) => {
+            const newWidth = startWidth + e.clientX - startX;
+            const minWidth = parseInt(getComputedStyle(notesList).minWidth);
+            const maxWidth = parseInt(getComputedStyle(notesList).maxWidth);
+
+            if (newWidth > minWidth && newWidth < maxWidth) {
+                notesList.style.width = newWidth + 'px';
+            }
+        };
+
+        const stopDrag = () => {
+            document.removeEventListener('mousemove', doDrag);
+            document.removeEventListener('mouseup', stopDrag);
+            browser.storage.local.set({ notesListWidth: notesList.style.width });
+        };
+
+        document.addEventListener('mousemove', doDrag);
+        document.addEventListener('mouseup', stopDrag);
+    });
 });
