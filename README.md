@@ -2,7 +2,7 @@
 
 A simple and convenient sticky notes panel for your Firefox sidebar.
 
-![Screenshot Placeholder](placeholder.png) <!-- TODO: Add a real screenshot of the extension in action -->
+![Screenshot Placeholder](image.png) 
 
 ## Description
 
