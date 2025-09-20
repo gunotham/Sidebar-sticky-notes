@@ -2,20 +2,27 @@
   "manifest_version": 3,
   "name": "Sticky Notes Sidebar",
   "version": "1.0",
-  "description": "A simple, clean, and persistent sticky notes panel in your browser sidebar.",
+  "author": "Extron",
+  "description": "Tired of juggling a separate sticky notes app every time you need to jot something down? Sticky Notes Sidebar was created to solve that exact problem. Born from a personal need for a more accessible notepad, this extension embeds a simple and persistent sticky notes panel directly into your browser's sidebar.\n\nNow, your notes are always just one click away, no matter what you're browsing. It's the perfect place to capture quick thoughts, manage a to-do list, or save important snippets of information without interrupting your workflow. Enjoy a clean, straightforward notes panel that's there when you need it and out of the way when you don't.",
   "permissions": ["storage"],
   "sidebar_action": {
     "default_title": "Sticky Notes",
     "default_panel": "sidebar.html",
-    "default_icon": "sticky-note.png"
+    "default_icon": {
+      "48": "pix-48.png",
+      "96": "pix-96.png"
+    }
   },
   "icons": {
-    "48": "sticky-note.png",
-    "96": "sticky-note.png"
+    "48": "pix-48.png",
+    "96": "pix-96.png"
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "stickynotes-sidebar@example.com"
+      "id": "@extron-extension-dev",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
     }
   }
 }
