@@ -2,10 +2,20 @@
   "manifest_version": 3,
   "name": "Sticky Notes Sidebar",
   "version": "1.0",
-  "description": "A simple sticky notes panel in the Firefox sidebar.",
+  "description": "A simple, clean, and persistent sticky notes panel in your browser sidebar.",
   "permissions": ["storage"],
   "sidebar_action": {
     "default_title": "Sticky Notes",
-    "default_panel": "sidebar.html"
+    "default_panel": "sidebar.html",
+    "default_icon": "sticky-note.png"
+  },
+  "icons": {
+    "48": "sticky-note.png",
+    "96": "sticky-note.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "stickynotes-sidebar@example.com"
+    }
   }
 }

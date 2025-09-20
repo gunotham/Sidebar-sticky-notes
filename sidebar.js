@@ -3,10 +3,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const noteContent = document.getElementById("note-content");
     const newNoteBtn = document.getElementById("new-note");
     const themeToggle = document.getElementById("theme-checkbox");
+    const confirmDialog = document.getElementById("confirm-dialog");
+    const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
+    const cancelDeleteBtn = document.getElementById("cancel-delete-btn");
 
     let notes = [];
     let currentNoteId = null;
     let saveTimeout;
+    let noteIdToDelete = null;
 
     // --- Helper Functions ---
     function getAutoTitle(content) {
@@ -168,19 +172,36 @@ document.addEventListener("DOMContentLoaded", () => {
         saveNotes();
     }
 
-    async function deleteNote(id) {
-        notes = notes.filter(note => note.id !== id);
-        
-        if (notes.length === 0) {
-            notes.push({ id: Date.now(), title: "New Note", content: "", titleManuallySet: false });
-        }
+    function deleteNote(id) {
+        noteIdToDelete = id;
+        confirmDialog.classList.remove('hidden');
+    }
 
-        if (currentNoteId === id) {
-            currentNoteId = notes[0].id;
+    async function confirmDelete() {
+        try {
+            if (!noteIdToDelete) return;
+
+            notes = notes.filter(note => note.id !== noteIdToDelete);
+            
+            if (notes.length === 0) {
+                notes.push({ id: Date.now(), title: "New Note", content: "", titleManuallySet: false });
+            }
+
+            if (currentNoteId === noteIdToDelete) {
+                currentNoteId = notes[0].id;
+            }
+            
+            await saveNotes();
+            switchNote(currentNoteId);
+        } finally {
+            noteIdToDelete = null;
+            confirmDialog.classList.add('hidden');
         }
-        
-        await saveNotes();
-        switchNote(currentNoteId);
+    }
+
+    function cancelDelete() {
+        noteIdToDelete = null;
+        confirmDialog.classList.add('hidden');
     }
 
     // --- Event Listeners ---
@@ -215,6 +236,9 @@ document.addEventListener("DOMContentLoaded", () => {
             saveTimeout = setTimeout(saveNotes, 300);
         }
     });
+
+    confirmDeleteBtn.addEventListener("click", confirmDelete);
+    cancelDeleteBtn.addEventListener("click", cancelDelete);
 
     // --- Initial Load ---
     loadTheme();
