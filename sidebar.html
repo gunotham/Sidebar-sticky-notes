@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Sticky Notes</title>
+  <style>
+    :root {
+      --bg-color: #f7f7f7;
+      --text-color: #222;
+      --header-bg: #fff;
+      --note-list-bg: #fff;
+      --textarea-bg: #fff;
+      --active-note-bg: #e0e0e0;
+      --hover-note-bg: #f0f0f0;
+      --border-color: #e0e0e0;
+      --button-color: #555;
+      --button-hover-color: #000;
+      --new-note-bg: #007bff;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #2b2b2b;
+      --text-color: #f1f1f1;
+      --header-bg: #3c3c3c;
+      --note-list-bg: #3c3c3c;
+      --textarea-bg: #2b2b2b;
+      --active-note-bg: #555;
+      --hover-note-bg: #4a4a4a;
+      --border-color: #555;
+      --button-color: #ccc;
+      --button-hover-color: #fff;
+      --new-note-bg: #0069d9;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    #header {
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      background-color: var(--header-bg);
+    }
+    #header span {
+        font-weight: bold;
+        font-size: 16px;
+    }
+    .theme-switch-wrapper {
+        display: flex;
+        align-items: center;
+    }
+    .theme-switch {
+        display: inline-block;
+        height: 20px;
+        position: relative;
+        width: 40px;
+        margin: 0 10px;
+    }
+    .theme-switch input { display: none; }
+    .slider {
+        background-color: #ccc;
+        bottom: 0;
+        cursor: pointer;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transition: .4s;
+        border-radius: 20px;
+    }
+    .slider:before {
+        background-color: #fff;
+        bottom: 2px;
+        content: "";
+        height: 16px;
+        left: 2px;
+        position: absolute;
+        transition: .4s;
+        width: 16px;
+        border-radius: 50%;
+    }
+    input:checked + .slider {
+        background-color: var(--new-note-bg);
+    }
+    input:checked + .slider:before {
+        transform: translateX(20px);
+    }
+    #new-note {
+      cursor: pointer;
+      background: var(--new-note-bg);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 18px;
+      line-height: 22px;
+      text-align: center;
+    }
+    #notes-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    #notes-list {
+      width: 120px;
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+      background-color: var(--note-list-bg);
+    }
+    .note-item {
+        padding: 10px;
+        cursor: pointer;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+    }
+    .note-item:hover {
+        background-color: var(--hover-note-bg);
+    }
+    .note-item.active {
+        background-color: var(--active-note-bg);
+    }
+    .note-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex-grow: 1;
+    }
+    .note-actions {
+        display: flex;
+        visibility: hidden;
+    }
+    .note-item:hover .note-actions {
+        visibility: visible;
+    }
+    .edit-note, .delete-note {
+        background: none;
+        border: none;
+        color: var(--button-color);
+        cursor: pointer;
+        font-size: 16px;
+        padding: 0 3px;
+    }
+    .edit-note:hover, .delete-note:hover {
+        color: var(--button-hover-color);
+    }
+    #note-content {
+      flex: 1;
+      border: none;
+      padding: 10px;
+      outline: none;
+      resize: none;
+      font-size: 14px;
+      line-height: 1.5;
+      background-color: var(--textarea-bg);
+      color: var(--text-color);
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <span>Notes</span>
+    <div class="theme-switch-wrapper">
+        <label class="theme-switch" for="theme-checkbox">
+            <input type="checkbox" id="theme-checkbox" />
+            <div class="slider"></div>
+        </label>
+    </div>
+    <button id="new-note" title="New Note">+</button>
+  </div>
+  <div id="notes-container">
+    <div id="notes-list"></div>
+    <textarea id="note-content" placeholder="Select a note or create a new one..."></textarea>
+  </div>
+  <script src="sidebar.js"></script>
+</body>
+</html>

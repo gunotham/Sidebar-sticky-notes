@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Sticky Notes Sidebar",
+  "version": "1.0",
+  "description": "A simple sticky notes panel in the Firefox sidebar.",
+  "permissions": ["storage"],
+  "sidebar_action": {
+    "default_title": "Sticky Notes",
+    "default_panel": "sidebar.html"
+  }
+}
