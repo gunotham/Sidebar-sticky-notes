@@ -3,10 +3,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById("search-input");
     const noteContent = document.getElementById("note-content");
     const newNoteBtn = document.getElementById("new-note");
-    const themeToggle = document.getElementById("theme-checkbox");
     const confirmDialog = document.getElementById("confirm-dialog");
     const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
     const cancelDeleteBtn = document.getElementById("cancel-delete-btn");
+    const settingsBtn = document.getElementById("settings-btn");
+    const settingsDialog = document.getElementById("settings-dialog");
+    const closeSettingsBtn = document.getElementById("close-settings-btn");
+    const themeRadios = document.querySelectorAll("input[name='theme-mode']");
+    const browserThemeOption = document.getElementById("browser-theme-option");
+    const themePrompt = document.getElementById("theme-prompt");
+    const useBrowserThemeBtn = document.getElementById("use-browser-theme-btn");
+    const declineBrowserThemeBtn = document.getElementById("decline-browser-theme-btn");
 
     let notes = [];
     let searchQuery = "";
@@ -23,14 +30,118 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // --- Theme Logic ---
-    function applyTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        themeToggle.checked = theme === 'dark';
+    // themeMode: 'system' | 'light' | 'dark' | 'browser'
+    //   system  -> follow OS prefers-color-scheme (M3 palette)
+    //   light/dark -> forced M3 palette
+    //   browser -> colors pulled from the installed Firefox theme
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    let themeMode = 'system';
+    let browserTheme = null; // last theme.getCurrent()/onUpdated value
+
+    function hasThemeColors(theme) {
+        const c = theme && theme.colors;
+        return !!(c && (c.sidebar || c.frame || c.toolbar || c.ntp_background));
     }
 
-    async function loadTheme() {
-        const data = await browser.storage.local.get('theme');
-        applyTheme(data.theme || 'light'); // Default to light theme
+    function applyMode(mode) {
+        themeMode = mode;
+        const base = (mode === 'light') ? 'light'
+                   : (mode === 'dark')  ? 'dark'
+                   : (prefersDark.matches ? 'dark' : 'light'); // system + browser fallback
+        document.documentElement.setAttribute('data-theme', base);
+        applyThemeColors(mode === 'browser' ? browserTheme : null);
+    }
+
+    async function saveThemeMode(mode) {
+        applyMode(mode);
+        syncSettingsUI();
+        await browser.storage.local.set({ themeMode: mode, themeOnboarded: true });
+    }
+
+    function syncSettingsUI() {
+        themeRadios.forEach(r => { r.checked = r.value === themeMode; });
+        const available = hasThemeColors(browserTheme);
+        browserThemeOption.classList.toggle('disabled', !available);
+        const browserRadio = document.querySelector("input[name='theme-mode'][value='browser']");
+        if (browserRadio) browserRadio.disabled = !available;
+    }
+
+    // Re-evaluate when the OS light/dark preference flips.
+    prefersDark.addEventListener('change', () => {
+        if (themeMode === 'system' || themeMode === 'browser') applyMode(themeMode);
+    });
+
+    // --- Browser Theme Integration ---
+    // Map the installed Firefox theme's colors onto our CSS vars. Anything the
+    // theme doesn't define falls back to the built-in M3 palette.
+    const THEME_VAR_MAP = {
+        '--bg-color':         c => c.sidebar || c.ntp_background || c.frame,
+        '--note-list-bg':     c => c.sidebar || c.frame,
+        '--textarea-bg':      c => c.sidebar || c.ntp_background || c.frame,
+        '--header-bg':        c => c.frame || c.toolbar || c.sidebar,
+        '--field-bg':         c => c.toolbar_field,
+        '--text-color':       c => c.sidebar_text || c.toolbar_text || c.tab_background_text,
+        '--text-muted':       c => c.icons || c.sidebar_text || c.toolbar_text,
+        '--border-color':     c => c.sidebar_border || c.toolbar_field_border,
+        '--primary':          c => c.sidebar_highlight || c.toolbar_field_focus,
+        '--on-primary':       c => c.sidebar_highlight_text || c.toolbar_field_text,
+        '--active-note-bg':   c => c.sidebar_highlight || c.toolbar_field,
+        '--active-note-text': c => c.sidebar_highlight_text || c.sidebar_text,
+        '--button-hover-color': c => c.sidebar_highlight || c.toolbar_field_focus,
+    };
+
+    function applyThemeColors(theme) {
+        const root = document.documentElement.style;
+        const colors = (theme && theme.colors) || null;
+        for (const [varName, pick] of Object.entries(THEME_VAR_MAP)) {
+            const value = colors ? pick(colors) : null;
+            if (value) {
+                root.setProperty(varName, value);
+            } else {
+                root.removeProperty(varName); // revert to stylesheet/M3 default
+            }
+        }
+    }
+
+    async function initTheme() {
+        // Capture the installed theme and keep it live.
+        if (browser.theme && browser.theme.getCurrent) {
+            try {
+                browserTheme = await browser.theme.getCurrent();
+                if (browser.theme.onUpdated) {
+                    browser.theme.onUpdated.addListener(({ theme }) => {
+                        browserTheme = theme;
+                        if (themeMode === 'browser') applyThemeColors(theme);
+                        syncSettingsUI();
+                    });
+                }
+            } catch (e) {
+                browserTheme = null; // no permission / unsupported
+            }
+        }
+
+        const data = await browser.storage.local.get(['themeMode', 'theme', 'themeOnboarded']);
+
+        if (data.themeMode) {
+            applyMode(data.themeMode);
+        } else if (data.theme === 'light' || data.theme === 'dark') {
+            // Migrate legacy stored theme; existing users skip onboarding.
+            await browser.storage.local.set({ themeMode: data.theme, themeOnboarded: true });
+            applyMode(data.theme);
+        } else if (!data.themeOnboarded && hasThemeColors(browserTheme)) {
+            // First run with a custom browser theme present — ask the user.
+            applyMode('system');
+            themePrompt.classList.remove('hidden');
+        } else {
+            await browser.storage.local.set({ themeMode: 'system', themeOnboarded: true });
+            applyMode('system');
+        }
+        syncSettingsUI();
+    }
+
+    async function resolveThemePrompt(useBrowser) {
+        themePrompt.classList.add('hidden');
+        await saveThemeMode(useBrowser ? 'browser' : 'system');
     }
 
     // --- Data and Storage ---
@@ -223,11 +334,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // --- Event Listeners ---
-    themeToggle.addEventListener('change', () => {
-        const newTheme = themeToggle.checked ? 'dark' : 'light';
-        applyTheme(newTheme);
-        browser.storage.local.set({ theme: newTheme });
+    settingsBtn.addEventListener("click", () => {
+        syncSettingsUI();
+        settingsDialog.classList.remove('hidden');
     });
+    closeSettingsBtn.addEventListener("click", () => settingsDialog.classList.add('hidden'));
+    settingsDialog.addEventListener("click", (e) => {
+        if (e.target === settingsDialog) settingsDialog.classList.add('hidden');
+    });
+    themeRadios.forEach(radio => {
+        radio.addEventListener('change', () => { if (radio.checked) saveThemeMode(radio.value); });
+    });
+
+    useBrowserThemeBtn.addEventListener("click", () => resolveThemePrompt(true));
+    declineBrowserThemeBtn.addEventListener("click", () => resolveThemePrompt(false));
 
     newNoteBtn.addEventListener("click", async () => {
         const newNote = { id: crypto.randomUUID(), title: "New Note", content: "", titleManuallySet: false };
@@ -266,7 +386,7 @@ document.addEventListener("DOMContentLoaded", () => {
     cancelDeleteBtn.addEventListener("click", cancelDelete);
 
     // --- Initial Load ---
-    loadTheme();
+    initTheme();
     loadNotes();
 
     // --- Resizer Logic ---

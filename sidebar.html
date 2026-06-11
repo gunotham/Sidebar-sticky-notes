@@ -5,116 +5,113 @@
   <title>Sticky Notes</title>
   <style>
     :root {
-      --bg-color: #f7f7f7;
-      --text-color: #222;
-      --header-bg: #fff;
-      --note-list-bg: #fff;
-      --textarea-bg: #fff;
-      --active-note-bg: #e0e0e0;
-      --hover-note-bg: #f0f0f0;
-      --border-color: #e0e0e0;
-      --button-color: #555;
-      --button-hover-color: #000;
-      --new-note-bg: #007bff;
-      --danger-color: #dc3545;
+      /* Material Design 3 — light scheme */
+      --bg-color: #FEF7FF;          /* surface */
+      --header-bg: #F3EDF7;         /* surface-container */
+      --note-list-bg: #FEF7FF;      /* surface */
+      --textarea-bg: #FEF7FF;       /* surface */
+      --field-bg: #E7E0EC;          /* surface-container-high (filled field) */
+      --text-color: #1D1B20;        /* on-surface */
+      --text-muted: #49454F;        /* on-surface-variant */
+      --border-color: #CAC4D0;      /* outline-variant */
+      --active-note-bg: #E8DEF8;    /* secondary-container */
+      --active-note-text: #1D192B;  /* on-secondary-container */
+      --hover-overlay: rgba(29,27,32,0.06);
+      --button-color: #49454F;
+      --button-hover-color: #6750A4;
+      --primary: #6750A4;
+      --on-primary: #FFFFFF;
+      --danger-color: #B3261E;      /* error */
+      --on-danger: #FFFFFF;
+      --shadow-1: 0 1px 2px rgba(0,0,0,0.30), 0 1px 3px 1px rgba(0,0,0,0.15);
+      --shadow-3: 0 4px 8px 3px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.30);
     }
 
     [data-theme="dark"] {
-      --bg-color: #2b2b2b;
-      --text-color: #f1f1f1;
-      --header-bg: #3c3c3c;
-      --note-list-bg: #3c3c3c;
-      --textarea-bg: #2b2b2b;
-      --active-note-bg: #555;
-      --hover-note-bg: #4a4a4a;
-      --border-color: #555;
-      --button-color: #ccc;
-      --button-hover-color: #fff;
-      --new-note-bg: #0069d9;
-      --danger-color: #c82333;
+      /* Material Design 3 — dark scheme */
+      --bg-color: #141218;          /* surface */
+      --header-bg: #211F26;         /* surface-container */
+      --note-list-bg: #141218;
+      --textarea-bg: #141218;
+      --field-bg: #2B2930;          /* surface-container-high */
+      --text-color: #E6E0E9;        /* on-surface */
+      --text-muted: #CAC4D0;        /* on-surface-variant */
+      --border-color: #49454F;      /* outline-variant */
+      --active-note-bg: #4A4458;    /* secondary-container */
+      --active-note-text: #E8DEF8;  /* on-secondary-container */
+      --hover-overlay: rgba(230,224,233,0.08);
+      --button-color: #CAC4D0;
+      --button-hover-color: #D0BCFF;
+      --primary: #D0BCFF;
+      --on-primary: #381E72;
+      --danger-color: #F2B8B5;      /* error */
+      --on-danger: #601410;
+      --shadow-1: 0 1px 2px rgba(0,0,0,0.45), 0 1px 3px 1px rgba(0,0,0,0.30);
+      --shadow-3: 0 4px 8px 3px rgba(0,0,0,0.30), 0 1px 3px rgba(0,0,0,0.45);
     }
+
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       padding: 0;
-      font-family: sans-serif;
+      font-family: Roboto, "Segoe UI", system-ui, -apple-system, sans-serif;
       display: flex;
       flex-direction: column;
       height: 100vh;
       background-color: var(--bg-color);
       color: var(--text-color);
     }
+
     #header {
       padding: 8px 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--border-color);
       background-color: var(--header-bg);
+      box-shadow: var(--shadow-1);
+      z-index: 2;
     }
-    #header span {
-        font-weight: bold;
-        font-size: 16px;
+
+    /* Theme switch (Material) */
+    /* Icon button (settings gear) */
+    .icon-btn {
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background-color 0.15s, color 0.15s;
     }
-    .theme-switch-wrapper {
-        display: flex;
-        align-items: center;
+    .icon-btn:hover {
+      color: var(--button-hover-color);
+      background-color: var(--hover-overlay);
     }
-    .theme-icon {
-        color: var(--button-color);
-        transition: color 0.4s;
-    }
-    .theme-switch {
-        display: inline-block;
-        height: 20px;
-        position: relative;
-        width: 40px;
-        margin: 0 10px;
-    }
-    .theme-switch input { display: none; }
-    .slider {
-        background-color: #ccc;
-        bottom: 0;
-        cursor: pointer;
-        left: 0;
-        position: absolute;
-        right: 0;
-        top: 0;
-        transition: .4s;
-        border-radius: 20px;
-    }
-    .slider:before {
-        background-color: #fff;
-        bottom: 2px;
-        content: "";
-        height: 16px;
-        left: 2px;
-        position: absolute;
-        transition: .4s;
-        width: 16px;
-        border-radius: 50%;
-    }
-    input:checked + .slider {
-        background-color: var(--new-note-bg);
-    }
-    input:checked + .slider:before {
-        transform: translateX(20px);
-    }
+
+    /* FAB-style new-note button */
     #new-note {
       cursor: pointer;
-      background: var(--new-note-bg);
-      color: white;
+      background: var(--primary);
+      color: var(--on-primary);
       border: none;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      font-size: 18px;
-      line-height: 1;
+      border-radius: 4px;
+      width: 36px;
+      height: 36px;
       padding: 0;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: var(--shadow-1);
+      transition: box-shadow 0.2s, filter 0.2s;
     }
+    #new-note:hover { box-shadow: var(--shadow-3); filter: brightness(1.05); }
+    #new-note:active { box-shadow: var(--shadow-1); }
+
     #notes-container {
       display: flex;
       flex: 1;
@@ -123,154 +120,288 @@
     #notes-pane {
       display: flex;
       flex-direction: column;
-      width: 120px;
-      min-width: 80px;
+      width: 130px;
+      min-width: 90px;
       max-width: 400px;
       border-right: 1px solid var(--border-color);
       background-color: var(--note-list-bg);
     }
+
+    /* Filled search field */
+    #search-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      min-width: 0;
+      margin: 0 10px;
+      padding: 0 10px;
+      height: 36px;
+      background-color: var(--field-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+    }
+    #search-wrapper:focus-within {
+      border-color: var(--primary);
+    }
+    #search-wrapper .search-icon {
+      color: var(--text-muted);
+      display: flex;
+      flex-shrink: 0;
+    }
     #search-input {
-      box-sizing: border-box;
-      width: 100%;
-      padding: 6px 8px;
+      flex: 1;
+      min-width: 0;
       border: none;
-      border-bottom: 1px solid var(--border-color);
-      background-color: var(--textarea-bg);
+      background: transparent;
       color: var(--text-color);
       font-size: 13px;
       outline: none;
     }
+    #search-input::placeholder { color: var(--text-muted); }
+
     #notes-list {
       flex: 1;
       overflow-y: auto;
-    }
-    .no-results {
-      padding: 10px;
-      font-size: 12px;
-      color: var(--button-color);
-      text-align: center;
-    }
-    #resizer {
-        width: 3px;
-        cursor: col-resize;
-        background-color: var(--border-color);
-        transition: background-color 0.2s;
-    }
-    #resizer:hover,
-    #resizer:active {
-        background-color: var(--new-note-bg);
+      padding: 4px;
     }
     .note-item {
-        padding: 10px;
-        cursor: pointer;
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 13px;
+      padding: 10px 8px;
+      margin-bottom: 2px;
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      transition: background-color 0.15s;
     }
-    .note-item:hover {
-        background-color: var(--hover-note-bg);
-    }
+    .note-item:hover { background-color: var(--hover-overlay); }
     .note-item.active {
-        background-color: var(--active-note-bg);
+      background-color: var(--active-note-bg);
+      color: var(--active-note-text);
     }
     .note-title {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        flex-grow: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-grow: 1;
     }
-    .note-actions {
-        display: flex;
+    .note-item input {
+      flex-grow: 1;
+      min-width: 0;
+      font-size: 13px;
+      border: none;
+      border-bottom: 2px solid var(--primary);
+      background: transparent;
+      color: inherit;
+      outline: none;
+      padding: 0;
     }
+    .note-actions { display: flex; }
     .edit-note, .delete-note {
-        background: none;
-        border: none;
-        color: var(--button-color);
-        cursor: pointer;
-        font-size: 16px;
-        padding: 0 3px;
+      background: none;
+      border: none;
+      color: var(--button-color);
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      padding: 4px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s, color 0.15s;
     }
     .edit-note:hover, .delete-note:hover {
-        color: var(--button-hover-color);
+      color: var(--button-hover-color);
+      background-color: var(--hover-overlay);
     }
+    .note-item.active .edit-note, .note-item.active .delete-note { color: var(--active-note-text); }
+
+    .no-results {
+      padding: 16px 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    #resizer {
+      width: 3px;
+      cursor: col-resize;
+      background-color: var(--border-color);
+      transition: background-color 0.2s;
+    }
+    #resizer:hover, #resizer:active { background-color: var(--primary); }
+
     #note-content {
       flex: 1;
       border: none;
-      padding: 10px;
+      padding: 16px;
       outline: none;
       resize: none;
       font-size: 14px;
-      line-height: 1.5;
+      line-height: 1.6;
       background-color: var(--textarea-bg);
       color: var(--text-color);
+      font-family: inherit;
     }
+    #note-content::placeholder { color: var(--text-muted); }
+
+    /* Material dialog */
     .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
     }
     .modal-content {
-        background: var(--header-bg);
-        padding: 20px;
-        border-radius: 5px;
-        text-align: center;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      background: var(--header-bg);
+      padding: 24px;
+      border-radius: 8px;
+      text-align: left;
+      min-width: 220px;
+      max-width: 280px;
+      box-shadow: var(--shadow-3);
+    }
+    .modal-content p {
+      margin: 0 0 24px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text-color);
+    }
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
     }
     .modal-buttons button {
-        margin: 0 10px;
-        padding: 8px 16px;
-        border-radius: 3px;
-        border: 1px solid var(--border-color);
-        cursor: pointer;
-        font-weight: bold;
+      padding: 10px 16px;
+      border-radius: 4px;
+      border: none;
+      background: transparent;
+      color: var(--primary);
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: 0.1px;
+      transition: filter 0.15s, background-color 0.15s;
     }
+    .modal-buttons button:not(.filled):hover { background-color: var(--hover-overlay); }
+    #cancel-delete-btn {
+      background: transparent;
+      color: var(--primary);
+    }
+    #cancel-delete-btn:hover { background-color: var(--hover-overlay); }
     #confirm-delete-btn {
-        background-color: var(--danger-color);
-        color: white;
-        border-color: var(--danger-color);
+      background-color: var(--danger-color);
+      color: var(--on-danger);
     }
-    .hidden {
-        display: none !important;
+    #confirm-delete-btn:hover { filter: brightness(1.08); }
+
+    .modal-title {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-color);
     }
+    .settings-label {
+      margin: 0 0 4px !important;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted) !important;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .settings-options {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 16px;
+    }
+    .radio-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 4px;
+      font-size: 14px;
+      color: var(--text-color);
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .radio-row:hover { background-color: var(--hover-overlay); }
+    .radio-row input {
+      accent-color: var(--primary);
+      cursor: pointer;
+      margin: 0;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+    .radio-row span { line-height: 16px; }
+    .radio-row.disabled { opacity: 0.45; pointer-events: none; }
+
+    .modal-buttons button.filled {
+      background-color: var(--primary);
+      color: var(--on-primary);
+    }
+    .modal-buttons button.filled:hover { filter: brightness(1.08); }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div id="header">
-    <span>Notes</span>
-    <div class="theme-switch-wrapper">
-        <span class="theme-icon" id="sun-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg></span>
-        <label class="theme-switch" for="theme-checkbox">
-            <input type="checkbox" id="theme-checkbox" />
-            <div class="slider"></div>
-        </label>
-        <span class="theme-icon" id="moon-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></span>
+    <button id="settings-btn" class="icon-btn" title="Settings"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+    <div id="search-wrapper">
+      <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+      <input id="search-input" type="search" placeholder="Search…" autocomplete="off" />
     </div>
-    <button id="new-note" title="New Note"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
+    <button id="new-note" title="New Note"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
   </div>
   <div id="notes-container">
     <div id="notes-pane">
-      <input id="search-input" type="search" placeholder="Search notes…" autocomplete="off" />
       <div id="notes-list"></div>
     </div>
     <div id="resizer"></div>
-    <textarea id="note-content" placeholder="Select a note or create a new one..."></textarea>
+    <textarea id="note-content" placeholder="Start typing…"></textarea>
   </div>
 
   <div id="confirm-dialog" class="modal-overlay hidden">
     <div class="modal-content">
       <p>Are you sure you want to delete this note?</p>
       <div class="modal-buttons">
-        <button id="confirm-delete-btn">Delete</button>
         <button id="cancel-delete-btn">Cancel</button>
+        <button id="confirm-delete-btn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="theme-prompt" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h3 class="modal-title">Match your browser theme?</h3>
+      <p>We detected a custom Firefox theme. Want Sticky Notes to use its colors? You can change this anytime in settings.</p>
+      <div class="modal-buttons">
+        <button id="decline-browser-theme-btn">No thanks</button>
+        <button id="use-browser-theme-btn" class="filled">Use browser theme</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="settings-dialog" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h3 class="modal-title">Settings</h3>
+      <p class="settings-label">Appearance</p>
+      <div class="settings-options">
+        <label class="radio-row"><input type="radio" name="theme-mode" value="system" /> <span>Follow system</span></label>
+        <label class="radio-row"><input type="radio" name="theme-mode" value="light" /> <span>Light</span></label>
+        <label class="radio-row"><input type="radio" name="theme-mode" value="dark" /> <span>Dark</span></label>
+        <label class="radio-row" id="browser-theme-option"><input type="radio" name="theme-mode" value="browser" /> <span>Browser theme</span></label>
+      </div>
+      <div class="modal-buttons">
+        <button id="close-settings-btn" class="filled">Done</button>
       </div>
     </div>
   </div>
