@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     const notesList = document.getElementById("notes-list");
+    const searchInput = document.getElementById("search-input");
     const noteContent = document.getElementById("note-content");
     const newNoteBtn = document.getElementById("new-note");
     const themeToggle = document.getElementById("theme-checkbox");
@@ -8,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const cancelDeleteBtn = document.getElementById("cancel-delete-btn");
 
     let notes = [];
+    let searchQuery = "";
     let currentNoteId = null;
     let saveTimeout;
     let noteIdToDelete = null;
@@ -36,8 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await browser.storage.local.get(["notes", "currentNoteId"]);
         
         let loadedNotes = (data.notes && data.notes.length > 0) 
-            ? data.notes 
-            : [{ id: Date.now(), title: "My first note", content: "This is your first note!", titleManuallySet: true }];
+            ? data.notes
+            : [{ id: crypto.randomUUID(), title: "My first note", content: "This is your first note!", titleManuallySet: true }];
 
         notes = loadedNotes.map(note => ({
             id: note.id,
@@ -64,7 +66,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- UI Rendering ---
     function renderNotesList() {
         notesList.innerHTML = "";
-        notes.forEach(note => {
+
+        const q = searchQuery.trim().toLowerCase();
+        const visibleNotes = q
+            ? notes.filter(note =>
+                note.title.toLowerCase().includes(q) ||
+                note.content.toLowerCase().includes(q))
+            : notes;
+
+        if (visibleNotes.length === 0) {
+            const empty = document.createElement("div");
+            empty.classList.add("no-results");
+            empty.textContent = "No matching notes";
+            notesList.appendChild(empty);
+            return;
+        }
+
+        visibleNotes.forEach(note => {
             const noteElement = document.createElement("div");
             noteElement.classList.add("note-item");
             if (note.id === currentNoteId) {
@@ -113,7 +131,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const note = notes.find(n => n.id === currentNoteId);
         if (note) {
             noteContent.value = note.content;
-            noteContent.focus();
         } else {
             noteContent.value = "";
         }
@@ -169,6 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
         currentNoteId = id;
         renderNotesList();
         displayNoteContent();
+        noteContent.focus();
         saveNotes();
     }
 
@@ -184,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
             notes = notes.filter(note => note.id !== noteIdToDelete);
             
             if (notes.length === 0) {
-                notes.push({ id: Date.now(), title: "New Note", content: "", titleManuallySet: false });
+                notes.push({ id: crypto.randomUUID(), title: "New Note", content: "", titleManuallySet: false });
             }
 
             if (currentNoteId === noteIdToDelete) {
@@ -212,7 +230,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     newNoteBtn.addEventListener("click", async () => {
-        const newNote = { id: Date.now(), title: "New Note", content: "", titleManuallySet: false };
+        const newNote = { id: crypto.randomUUID(), title: "New Note", content: "", titleManuallySet: false };
+        searchQuery = "";
+        searchInput.value = "";
         notes.unshift(newNote);
         await saveNotes();
         switchNote(newNote.id);
@@ -237,6 +257,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    searchInput.addEventListener("input", () => {
+        searchQuery = searchInput.value;
+        renderNotesList();
+    });
+
     confirmDeleteBtn.addEventListener("click", confirmDelete);
     cancelDeleteBtn.addEventListener("click", cancelDelete);
 
@@ -246,10 +271,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- Resizer Logic ---
     const resizer = document.getElementById('resizer');
+    const notesPane = document.getElementById('notes-pane');
 
     browser.storage.local.get('notesListWidth').then(data => {
         if (data.notesListWidth) {
-            notesList.style.width = data.notesListWidth;
+            notesPane.style.width = data.notesListWidth;
         }
     });
 
@@ -257,22 +283,22 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
 
         const startX = e.clientX;
-        const startWidth = notesList.offsetWidth;
+        const startWidth = notesPane.offsetWidth;
 
         const doDrag = (e) => {
             const newWidth = startWidth + e.clientX - startX;
-            const minWidth = parseInt(getComputedStyle(notesList).minWidth);
-            const maxWidth = parseInt(getComputedStyle(notesList).maxWidth);
+            const minWidth = parseInt(getComputedStyle(notesPane).minWidth);
+            const maxWidth = parseInt(getComputedStyle(notesPane).maxWidth);
 
             if (newWidth > minWidth && newWidth < maxWidth) {
-                notesList.style.width = newWidth + 'px';
+                notesPane.style.width = newWidth + 'px';
             }
         };
 
         const stopDrag = () => {
             document.removeEventListener('mousemove', doDrag);
             document.removeEventListener('mouseup', stopDrag);
-            browser.storage.local.set({ notesListWidth: notesList.style.width });
+            browser.storage.local.set({ notesListWidth: notesPane.style.width });
         };
 
         document.addEventListener('mousemove', doDrag);

@@ -23,7 +23,7 @@ Now, your notes are always just one click away, no matter what you're browsing. 
 
 ### Recommended (Firefox Add-on Store)
 
-You can install the latest stable version from the [Firefox Add-on Store](https://addons.mozilla.org/en-US/firefox/addon/your-addon-slug-here/). <!-- TODO: Update this link after your extension is published -->
+You can install the latest stable version from the [Firefox Add-on Store](https://addons.mozilla.org/en-US/firefox/addon/sidebar-sticky-note/).
 
 ### From Source (For Developers)
 
@@ -44,4 +44,4 @@ You can install the latest stable version from the [Firefox Add-on Store](https:
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details. (Note: You can choose a different license if you prefer).
+This project is licensed under the MIT License. See the `LICENSE` file for details.
